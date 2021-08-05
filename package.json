@@ -1,0 +1,16 @@
+{
+  "name": "mailcow.js",
+  "version": "1.0.0",
+  "description": "A dead simple mailcow node wrapper",
+  "main": "index.js",
+  "dependencies": {
+    "leeks.js": "^0.2.2",
+    "leekslazylogger": "^3.0.2",
+    "wumpfetch": "^0.3.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DopeDealers",
+  "license": "MIT"
+}
