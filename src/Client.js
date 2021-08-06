@@ -1,5 +1,6 @@
-const w = require('wumpfetch');
+const w = require('axios');
 const isURL = require('./utils/isUrl');
+var dns = require("whois");
 
 
 class Mailcow {
@@ -20,24 +21,53 @@ class Mailcow {
         this._headers = {
             'X-Api-Key': this.options.writeKey
         }
-        
     }
-    async getUser(user) {
+    
+    /** <Mailcow>.getUserMailBox(<user>); // GET
+     * @param  {String} user User param
+     * @returns {JSON} Unformated JSON data from API
+     * @example let user = await new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"})
+     * let apiData = await user.getUserMailBox("admin@cyci.org")
+     */
+    async getUserMailBox(user) {
         if (!user || !user.length) user = "all"
-        // user should be user@domain.tld
-        const r = await w(`${this._baseurl}/api/v1/get/mailbox/${user}`, {
-            method: 'GET',
-            headers: this.headers,
-            
-        }).send();
-        console.log(r);
-        console.log(`${this._baseurl}/api/v1/get/mailbox/${user}`);
-        return r;
+        const unformData = await w({url: `${this._baseurl}/api/v1/get/mailbox/${user}`, headers: this._headers, method: 'get'})
+        return unformData.data;
+    }
+    /** <Mailcow>.addMailBox(<user>); // POST
+     * @param  {Object} domain Object domain param
+     * @returns {JSON} Unformated JSON data from API
+     * @example let domain = await new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"})
+     * let apiData = await domain.addMailBox({})
+     * @borrows https://github.com/firstdorsal/mailcow-api/blob/master/index.js#L157
+     */
+     async addMailBox(domain) {
+        if (!domain || Object.getPrototypeOf(domain) !== Object.prototype) throw new Error("No domain Object schema or no param provided.");
+        this._headers['Content-Type'] == "application/json";
+        if (!domain.domain.match(/[A-Z-a-z0-9]+\.[A-Z-a-z0-9]+$/)) throw new Error('domain name is invalid');
+
+        domain.active = typeof (domain.active) == 'undefined' ? 1 : domain.active;
+        domain.aliases = typeof (domain.aliases) == 'undefined' ? 400 : domain.aliases;
+        domain.defquota = typeof (domain.defquota) == 'undefined' ? 3072 : domain.defquota;
+        domain.mailboxes = typeof (domain.mailboxes) == 'undefined' ? 10 : domain.mailboxes;
+        domain.maxquota = typeof (domain.maxquota) == 'undefined' ? 10240 : domain.maxquota;
+        domain.quota = typeof (domain.quota) == 'undefined' ? 10240 : domain.quota;
+        const unformData = await w({url: `${this._baseurl}/api/v1/get/mailbox/${user}`, headers: this._headers, method: 'post', body: {}})
+        return unformData.data;
+    }
+
+    /**
+    //  * @private
+     * @param {String} url
+     */
+     async checkAvailable(url) {
+        if (!url) throw new Error('No domain name provided <Mailcow>.checkAvailable()');
+            dns.lookup(url, function(err, data) {
+                if (!data || data.includes("NOT FOUND")) return false;
+                else return true;
+            });
+            //console.log(data);
     }
 }
-(async() =>{
-    const e = new Mailcow("https://mail.cyci.org", {writeKey: "", readOnlyKey: ""});
 
-    let ee = await e.getUser("admin@cyci.org")
-    console.log(ee);
-})
+module.exports = Mailcow;
