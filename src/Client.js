@@ -1,6 +1,5 @@
 const w = require('axios');
 const isURL = require('./utils/isUrl');
-var dns = require("whois");
 
 
 class Mailcow {
@@ -45,28 +44,27 @@ class Mailcow {
         if (!domain || Object.getPrototypeOf(domain) !== Object.prototype) throw new Error("No domain Object schema or no param provided.");
         this._headers['Content-Type'] == "application/json";
         if (!domain.domain.match(/[A-Z-a-z0-9]+\.[A-Z-a-z0-9]+$/)) throw new Error('domain name is invalid');
-
+        let domainWhois = this.checkAvailable(domain.domain);
+        if (!domainWhois) throw new Error('The domain provided was not registered on the WHOIS database.')
         domain.active = typeof (domain.active) == 'undefined' ? 1 : domain.active;
         domain.aliases = typeof (domain.aliases) == 'undefined' ? 400 : domain.aliases;
         domain.defquota = typeof (domain.defquota) == 'undefined' ? 3072 : domain.defquota;
         domain.mailboxes = typeof (domain.mailboxes) == 'undefined' ? 10 : domain.mailboxes;
         domain.maxquota = typeof (domain.maxquota) == 'undefined' ? 10240 : domain.maxquota;
         domain.quota = typeof (domain.quota) == 'undefined' ? 10240 : domain.quota;
-        const unformData = await w({url: `${this._baseurl}/api/v1/get/mailbox/${user}`, headers: this._headers, method: 'post', body: {}})
+        const unformData = await w({url: `${this._baseurl}/api/v1/add/mailbox/${user}`, headers: this._headers, method: 'post', body: {}})
         return unformData.data;
     }
 
     /**
-    //  * @private
+     * @private
      * @param {String} url
      */
      async checkAvailable(url) {
         if (!url) throw new Error('No domain name provided <Mailcow>.checkAvailable()');
-            dns.lookup(url, function(err, data) {
-                if (!data || data.includes("NOT FOUND")) return false;
-                else return true;
-            });
-            //console.log(data);
+            const domainWhois = await require('whoiser').domain(url)
+            if (domainWhois['whois.pir.org'].text[0] == 'URL of the ICANN Whois Inaccuracy Complaint Form https://www.icann.org/wicf/)') return true;
+            else return false;
     }
 }
 

@@ -9,6 +9,8 @@
   "author": "DopeDealers",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "whois-checker-v2": "^1.0.3",
+    "whoiser": "^1.13.0"
   }
 }
