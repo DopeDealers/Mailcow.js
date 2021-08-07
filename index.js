@@ -1,5 +1,1 @@
-module.exports = {
-    Client: require("./src/Client"),
-    version: require("../package.json"),
-    contributors: require("../package.json")
-};
+module.exports = require("./src/Client");
