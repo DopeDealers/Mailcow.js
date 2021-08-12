@@ -33,6 +33,17 @@ class Mailcow {
         const unformData = await w({url: `${this._baseurl}/api/v1/get/mailbox/${user}`, headers: this._headers, method: 'get'})
         return unformData.data;
     }
+    /** <Mailcow>.getDomain(<domain>); // GET
+     * @param  {String} domain String domain param
+     * @returns {JSON} Unformated JSON data from API
+     * @example let domain = await new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"})
+     * let apiData = await domain.addMailBox("yourdomain.org")
+     */
+    async getDomain(domain) {
+        if (!domain || !domain.length) domain = "all"
+        const unformData = await w({url: `${this._baseurl}/api/v1/get/domain/${domain}`, headers: this._headers, method: 'get'})
+        return unformData.data;
+    }
     /** <Mailcow>.addMailBox(<user>); // POST
      * @param  {Object} domain Object domain param
      * @returns {JSON} Unformated JSON data from API
@@ -40,7 +51,7 @@ class Mailcow {
      * let apiData = await domain.addMailBox({})
      * @borrows https://github.com/firstdorsal/mailcow-api/blob/master/index.js#L157
      */
-     async addMailBox(domain) {
+     async addDomain(domain) {
         if (!domain || Object.getPrototypeOf(domain) !== Object.prototype) throw new Error("No domain Object schema or no param provided.");
         this._headers['Content-Type'] == "application/json";
         if (!domain.domain.match(/[A-Z-a-z0-9]+\.[A-Z-a-z0-9]+$/)) throw new Error('domain name is invalid');
@@ -52,7 +63,7 @@ class Mailcow {
         domain.mailboxes = typeof (domain.mailboxes) == 'undefined' ? 10 : domain.mailboxes;
         domain.maxquota = typeof (domain.maxquota) == 'undefined' ? 10240 : domain.maxquota;
         domain.quota = typeof (domain.quota) == 'undefined' ? 10240 : domain.quota;
-        const unformData = await w({url: `${this._baseurl}/api/v1/add/mailbox/${user}`, headers: this._headers, method: 'post', body: {}})
+        const unformData = await w({url: `${this._baseurl}/api/v1/add/mailbox/${user}`, headers: this._headers, method: 'post', body: JSON.stringify(domain)})
         return unformData.data;
     }
 
