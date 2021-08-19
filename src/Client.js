@@ -44,11 +44,11 @@ class Mailcow {
         const unformData = await w({url: `${this._baseurl}/api/v1/get/domain/${domain}`, headers: this._headers, method: 'get'})
         return unformData.data;
     }
-    /** <Mailcow>.addMailBox(<user>); // POST
+    /** <Mailcow>.addDomain(<domain>); // POST
      * @param  {Object} domain Object domain param
      * @returns {JSON} Unformated JSON data from API
      * @example let domain = await new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"})
-     * let apiData = await domain.addMailBox({})
+     * let apiData = await domain.addDomain({})
      * @borrows https://github.com/firstdorsal/mailcow-api/blob/master/index.js#L157
      */
      async addDomain(domain) {
@@ -65,6 +65,17 @@ class Mailcow {
         domain.quota = typeof (domain.quota) == 'undefined' ? 10240 : domain.quota;
         const unformData = await w({url: `${this._baseurl}/api/v1/add/mailbox/${user}`, headers: this._headers, method: 'post', body: JSON.stringify(domain)})
         return unformData.data;
+    }
+    /** <Mailcow>.deleteDomain(<Domain>); // POST
+     * @param  {Array} domain Domain arraylist
+     * @returns {JSON} Unformated JSON data from API
+     * @example let domain = await new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"})
+     * let apiData = await domain.deleteDomain(["domain"])
+     */
+    async deleteDomain(domain) {
+        if (!domain) throw new Error("No domain array or param provided.");
+        let domainArray = [];
+        if (Array.isArray(domain)) domainArray.push(domain);
     }
 
     /**
