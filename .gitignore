@@ -78,4 +78,5 @@ typings/
 
 # Self testing files
 test.js
+.env
 docs/
