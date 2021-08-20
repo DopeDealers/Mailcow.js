@@ -1,5 +1,6 @@
 const w = require('axios');
 const isURL = require('./utils/isUrl');
+const {mailcowjsOptions} = require('./Constants');
 
 
 class Mailcow {
@@ -11,14 +12,13 @@ class Mailcow {
      * @example const mailcow = new Mailcow("https://mail.yourdomain.org/", {readOnlyKey: "XXXX-XXXX-XXXX-XXXX", writeKey: "XXXX-XXXX-XXXX-XXXX"});
      * 
      */
-    constructor(baseurl, {readOnlyKey = "", writeKey = "", noOutPutConsole = false} = {}) {
-        ////{readOnlyKey = "", writeKey = "", noOutPutConsole = false} = {}
+    constructor(baseurl, options) {
         this._baseurl = baseurl;
-        this.options = {readOnlyKey, writeKey}
+        Object.defineProperty(this, 'options', { value: this.mergeDefault(mailcowjsOptions, options) });
         if (!this._baseurl || !isURL(this._baseurl)) throw new Error("Please provide a baseurl, can be found by going to https://mail.yourdomain.org/ with a mailcow installation.");
-        if (!this.options.readOnlyKey || !this.options.writeKey) throw new Error("Please provide both a Read And Write API key to use with this wrapper can be found on your mailcow Admin Panel.");
+        if (!options.readOnlyKey || !options.writeKey) throw new Error("Please provide both a Read And Write API key to use with this wrapper can be found on your mailcow Admin Panel.");
         this._headers = {
-            'X-Api-Key': this.options.writeKey
+            'X-Api-Key': options.writeKey
         }
     }
     
@@ -87,6 +87,27 @@ class Mailcow {
             const domainWhois = await require('whoiser').domain(url)
             if (domainWhois['whois.pir.org'].text[0] == 'URL of the ICANN Whois Inaccuracy Complaint Form https://www.icann.org/wicf/)') return true;
             else return false;
+    }
+
+     /**
+     * @private
+     * @param {String} url
+     * @borrows https://github.com/Deivu/Shoukaku/blob/89e4594fab593c89d9870e5142d9694b8e2099af/src/Utils.js#L4
+     */
+    async mergeDefault(def, given) {
+        if (!given) return def;
+        const defaultKeys = Object.keys(def);
+        for (const key of defaultKeys) {
+            if (def[key] === null) {
+                if (!given[key]) throw new Error(`${key} was not found from the given options.`);
+            }
+            if (given[key] === null || given[key] === undefined) given[key] = def[key];
+        }
+        for (const key in defaultKeys) {
+            if (defaultKeys.includes(key)) continue;
+            delete given[key];
+        }
+        return given;
     }
 }
 
