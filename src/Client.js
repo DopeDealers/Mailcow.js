@@ -75,7 +75,7 @@ class Mailcow {
     async deleteDomain(domain) {
         if (!domain) throw new Error("No domain array or param provided.");
         let domainArray = [];
-        if (Array.isArray(domain)) domainArray.push(domain);
+        if (!Array.isArray(domain)) domainArray.push(domain);
     }
 
     /**
