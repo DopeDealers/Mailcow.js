@@ -51,7 +51,7 @@ class Mailcow {
      * let apiData = await domain.addDomain({})
      * @borrows https://github.com/firstdorsal/mailcow-api/blob/master/index.js#L157
      */
-     async addDomain(domain) {
+    async addDomain(domain) {
         if (!domain || Object.getPrototypeOf(domain) !== Object.prototype) throw new Error("No domain Object schema or no param provided.");
         this._headers['Content-Type'] == "application/json";
         if (!domain.domain.match(/[A-Z-a-z0-9]+\.[A-Z-a-z0-9]+$/)) throw new Error('domain name is invalid');
@@ -82,14 +82,14 @@ class Mailcow {
      * @private
      * @param {String} url
      */
-     async checkAvailable(url) {
+    async checkAvailable(url) {
         if (!url) throw new Error('No domain name provided <Mailcow>.checkAvailable()');
             const domainWhois = await require('whoiser').domain(url)
             if (domainWhois['whois.pir.org'].text[0] == 'URL of the ICANN Whois Inaccuracy Complaint Form https://www.icann.org/wicf/)') return true;
             else return false;
     }
 
-     /**
+    /**
      * @private
      * @param {String} url
      * @borrows https://github.com/Deivu/Shoukaku/blob/89e4594fab593c89d9870e5142d9694b8e2099af/src/Utils.js#L4
@@ -109,6 +109,41 @@ class Mailcow {
         }
         return given;
     }
+
+    async listMailboxes() {
+        const response = await w({
+            url: `${this._baseurl}/api/v1/get/mailbox/all`,
+            headers: this._headers,
+            method: 'get'
+        });
+        return response.data;
+    }
+    
+    async addMailbox(mailboxDetails) {
+        if (!mailboxDetails || typeof mailboxDetails !== 'object') {
+            throw new Error("Invalid mailbox details.");
+        }
+        const response = await w({
+            url: `${this._baseurl}/api/v1/add/mailbox`,
+            headers: { ...this._headers, 'Content-Type': 'application/json' },
+            method: 'post',
+            data: mailboxDetails
+        });
+        return response.data;
+    }
+
+    async deleteDomain(domains) {
+        if (!Array.isArray(domains)) {
+            throw new Error("Domains parameter must be an array.");
+        }
+        const response = await w({
+            url: `${this._baseurl}/api/v1/delete/domain`,
+            headers: { ...this._headers, 'Content-Type': 'application/json' },
+            method: 'post',
+            data: { items: domains }
+        });
+        return response.data;
+}
 }
 
 module.exports = Mailcow;
