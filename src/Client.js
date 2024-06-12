@@ -81,6 +81,25 @@ class Mailcow {
      * @returns {Promise<JSON>} - Unformatted JSON data from API
      */
     async addMailbox(mailboxDetails) {
+        // Validate domain format
+        if (!mailboxDetails.domain.match(/[A-Z-a-z0-9]+\.[A-Z-a-z0-9]+$/)) {
+            throw new Error('Invalid domain name format');
+        }
+    
+        // Check if domain is registered on the WHOIS database
+        const domainWhois = await this.checkAvailable(mailboxDetails.domain);
+        if (!domainWhois) {
+            throw new Error('The domain provided was not registered on the WHOIS database.');
+        }
+        
+        mailboxDetails.active = typeof mailboxDetails.active === 'undefined' ? 1 : mailboxDetails.active;
+        mailboxDetails.quota = typeof mailboxDetails.quota === 'undefined' ? 3072 : mailboxDetails.quota;
+        mailboxDetails.force_pw_update = typeof mailboxDetails.force_pw_update === 'undefined' ? 1 : mailboxDetails.force_pw_update;
+        mailboxDetails.tls_enforce_in = typeof mailboxDetails.tls_enforce_in === 'undefined' ? 1 : mailboxDetails.tls_enforce_in;
+        mailboxDetails.tls_enforce_out = typeof mailboxDetails.tls_enforce_out === 'undefined' ? 1 : mailboxDetails.tls_enforce_out;
+        mailboxDetails.tags = mailboxDetails.tags || [];
+    
+        // Make API request to add mailbox
         return this.request({
             url: `${this._baseurl}/api/v1/add/mailbox`,
             headers: this._headers,
@@ -88,6 +107,7 @@ class Mailcow {
             data: mailboxDetails
         });
     }
+    
 
     /**
      * Delete mailboxes
