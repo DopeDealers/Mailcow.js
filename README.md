@@ -14,7 +14,7 @@ Mailcow.js is a simple and easy-to-use Node.js library designed to interact with
 ## Installation
 
 **NPM**
-``npm i TBD``
+``npm i mailcow.js``
 
 **Yarn**
 ``yarn add TBD``
