@@ -92,12 +92,12 @@ class Mailcow {
             throw new Error('The domain provided was not registered on the WHOIS database.');
         }
         
-        mailboxDetails.active = typeof mailboxDetails.active === 'undefined' ? 1 : mailboxDetails.active;
-        mailboxDetails.quota = typeof mailboxDetails.quota === 'undefined' ? 3072 : mailboxDetails.quota;
-        mailboxDetails.force_pw_update = typeof mailboxDetails.force_pw_update === 'undefined' ? 1 : mailboxDetails.force_pw_update;
-        mailboxDetails.tls_enforce_in = typeof mailboxDetails.tls_enforce_in === 'undefined' ? 1 : mailboxDetails.tls_enforce_in;
-        mailboxDetails.tls_enforce_out = typeof mailboxDetails.tls_enforce_out === 'undefined' ? 1 : mailboxDetails.tls_enforce_out;
-        mailboxDetails.tags = mailboxDetails.tags || [];
+        mailboxDetails.active ??= 1;
+        mailboxDetails.quota ??= 3072;
+        mailboxDetails.force_pw_update ??= 1;
+        mailboxDetails.tls_enforce_in ??= 1;
+        mailboxDetails.tls_enforce_out ??= 1;
+        mailboxDetails.tags ??= [];
     
         // Make API request to add mailbox
         return this.request({
@@ -147,12 +147,12 @@ class Mailcow {
         let domainWhois = await this.checkAvailable(domain.domain);
         if (!domainWhois) throw new Error('The domain provided was not registered on the WHOIS database.');
         
-        domain.active = typeof (domain.active) === 'undefined' ? 1 : domain.active;
-        domain.aliases = typeof (domain.aliases) === 'undefined' ? 400 : domain.aliases;
-        domain.defquota = typeof (domain.defquota) === 'undefined' ? 3072 : domain.defquota;
-        domain.mailboxes = typeof (domain.mailboxes) === 'undefined' ? 10 : domain.mailboxes;
-        domain.maxquota = typeof (domain.maxquota) === 'undefined' ? 10240 : domain.maxquota;
-        domain.quota = typeof (domain.quota) === 'undefined' ? 10240 : domain.quota;
+        domain.active ??= 1;
+        domain.aliases ??= 400;
+        domain.defquota ??= 3072;
+        domain.mailboxes ??= 10;
+        domain.maxquota ??= 10240;
+        domain.quota ??= 10240;
 
         return this.request({
             url: `${this._baseurl}/api/v1/add/domain`,
@@ -234,6 +234,32 @@ class Mailcow {
         });
     }
 
+    /**
+     * Edit sync jobs
+     * @param {Array<String>} syncJobs
+     * @returns {Promise<JSON>} - Unformatted JSON data from the API 
+     */
+    async editSyncJob(syncJobs) {
+        return this.request({
+            url: `${this._baseurl}/api/v1/delete/syncjob`,
+            headers: this._headers,
+            method: 'post',
+            data: { items: syncJobs }
+        });
+    }
+
+    /**
+     * Get all current sync jobs
+     * @returns {Promise<JSON>} - Unformatted JSON data from the API 
+     */
+    async getAllSyncJobs() {
+        return this.request({
+            url: `${this._baseurl}/api/v1/get/syncjobs/all/no_log`,
+            headers: this._headers,
+            method: 'get'
+        })
+    }
+
     // Forwarding Hosts
     /**
      * Add a new forwarding host
@@ -263,15 +289,28 @@ class Mailcow {
         });
     }
 
+    /**
+     * Get all forwarding hosts.
+     * @returns {Promise<JSON>}
+     */
+    async getForwardingHosts() {
+        return this.request({
+            url: `${this._baseurl}/api/v1/fwdhost/all`,
+            headers: this._headers,
+            method: 'get'
+        })
+    }
+
     // Logs
     /**
      * Get logs
-     * @param {String} type - Type of logs to retrieve
+     * @param {String} [type=sogo] - Type of logs to retrieve 
+     * @param {number} [count=10] - Log count to retrieve
      * @returns {Promise<JSON>} - Unformatted JSON data from API
      */
-    async getLogs(type = 'sogo') {
+    async getLogs(type = 'sogo', count = 10) {
         return this.request({
-            url: `${this._baseurl}/api/v1/get/logs/${type}`,
+            url: `${this._baseurl}/api/v1/get/logs/${type}/${count}`,
             headers: this._headers,
             method: 'get'
         });
