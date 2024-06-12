@@ -9,8 +9,7 @@ The unofficial Mailcow nodejs wrapper
 [![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com)
 
 ## About
-
-TEMP
+Mailcow.js is a simple and easy-to-use Node.js library designed to interact with the Mailcow email server API. With this library, you can effortlessly manage mailboxes, domains, aliases, sync jobs, and more, all through a clean and intuitive interface.
 
 ## Installation
 
@@ -22,4 +21,22 @@ TEMP
 
 
 ## Client
-Not available yet
+```js
+const Mailcow = require('mailcow.js');
+
+const mailcow = new Mailcow('https://mail.yourdomain.org/', {
+    readOnlyKey: 'XXXX-XXXX-XXXX-XXXX',
+    writeKey: 'XXXX-XXXX-XXXX-XXXX'
+});
+
+// Get user mailbox
+mailcow.getUserMailBox('admin@yourdomain.org')
+    .then(data => console.log(data))
+    .catch(err => console.error(err));
+
+// Add a new domain
+mailcow.addDomain({ domain: 'newdomain.org' })
+    .then(data => console.log(data))
+    .catch(err => console.error(err));
+
+```
